@@ -1,0 +1,7 @@
+{
+  "mercadopago": {
+    "type": "stdio",
+    "command": "bash",
+    "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/mcp-launcher.sh"]
+  }
+}
