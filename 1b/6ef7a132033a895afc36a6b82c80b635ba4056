@@ -1,0 +1,29 @@
+plugins/mp-developer/.mcp.json
+  8dcb7384ae39fa63 3-4
+plugins/mp-developer/agents/mp-integration-expert.md
+  8dcb7384ae39fa63 140
+plugins/mp-developer/commands/mp-connect.md
+  8dcb7384ae39fa63 2,10,14,18,21-22,24,26,28,30,32-35,37,39,41,45-47,49,51,54,57-64,66-72,75,77,79,81,83-85
+plugins/mp-developer/README.md
+  8dcb7384ae39fa63 7,9-11,13,15,69,85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "1b6ef7a132033a895afc36a6b82c80b635ba4056",
+  "prompts": {
+    "8dcb7384ae39fa63": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c678cd60-6805-42df-803f-45f143ba333e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 62,
+      "total_deletions": 65,
+      "accepted_lines": 57,
+      "overriden_lines": 0
+    }
+  }
+}
