@@ -89,8 +89,34 @@ def parse_tags(raw) -> list:
     return []
 
 
+def _parse_skill(skill_file: Path) -> dict:
+    """Parse a single SKILL.md into a component dict."""
+    skill_dir = skill_file.parent
+    text = skill_file.read_text(encoding="utf-8")
+    fm = parse_frontmatter(text)
+    meta = fm.get("metadata", {})
+
+    refs_dir = skill_dir / "references"
+    references = []
+    if refs_dir.is_dir():
+        references = sorted(
+            f"references/{f.name}" for f in refs_dir.iterdir() if f.suffix == ".md"
+        )
+
+    return {
+        "name": fm.get("name", skill_dir.name),
+        "type": "skill",
+        "description": fm.get("description", ""),
+        "version": meta.get("version", fm.get("version", "")),
+        "tags": parse_tags(meta.get("tags", fm.get("tags", []))),
+        "license": fm.get("license", ""),
+        "path": str(skill_file.relative_to(ROOT)),
+        "references": references,
+    }
+
+
 def collect_skills() -> list:
-    """Collect all skills from plugins/mp-developer/skills/*/SKILL.md."""
+    """Collect top-level skills from plugins/mp-developer/skills/*/SKILL.md."""
     components = []
     skills_dir = PLUGIN_DIR / "skills"
     if not skills_dir.exists():
@@ -101,28 +127,7 @@ def collect_skills() -> list:
         if not skill_file.is_file():
             continue
 
-        text = skill_file.read_text(encoding="utf-8")
-        fm = parse_frontmatter(text)
-        meta = fm.get("metadata", {})
-
-        # Collect reference files
-        refs_dir = skill_dir / "references"
-        references = []
-        if refs_dir.is_dir():
-            references = sorted(
-                f"references/{f.name}" for f in refs_dir.iterdir() if f.suffix == ".md"
-            )
-
-        components.append({
-            "name": fm.get("name", skill_dir.name),
-            "type": "skill",
-            "description": fm.get("description", ""),
-            "version": meta.get("version", fm.get("version", "")),
-            "tags": parse_tags(meta.get("tags", fm.get("tags", []))),
-            "license": fm.get("license", ""),
-            "path": str(skill_file.relative_to(ROOT)),
-            "references": references,
-        })
+        components.append(_parse_skill(skill_file))
 
     return components
 
@@ -237,7 +242,7 @@ def main():
     commands = collect_commands()
     hooks = collect_hooks()
 
-    all_components = skills + agents + commands + hooks
+    all_components = agents + skills + commands + hooks
 
     catalog = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -259,10 +264,10 @@ def main():
     )
 
     print(f"Generated {OUTPUT} with {len(all_components)} components:")
-    print(f"  Skills:   {len(skills)}")
-    print(f"  Agents:   {len(agents)}")
-    print(f"  Commands: {len(commands)}")
-    print(f"  Hooks:    {len(hooks)}")
+    print(f"  Skills:     {len(skills)}")
+    print(f"  Agents:     {len(agents)}")
+    print(f"  Commands:   {len(commands)}")
+    print(f"  Hooks:      {len(hooks)}")
 
 
 if __name__ == "__main__":
