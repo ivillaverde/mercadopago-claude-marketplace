@@ -137,7 +137,7 @@ Verify these points in every MP integration:
 - Idempotency keys are used for payment creation requests
 - HTTPS is enforced for all `back_url` and `notification_url` values
 - Test user credentials are NOT used in production deployments (verify the Access Token belongs to the real account, not a test user)
-- MCP server Access Token stored ONLY in OS keychain (via `/mp-connect`), never in `.env` or code
+- MCP server authenticated via OAuth (via `/mp-connect`) — no Access Token stored in `.env`, keychain, or code
 
 ## Testing Model
 

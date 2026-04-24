@@ -4,23 +4,15 @@ Mercado Pago full-product integration toolkit for Claude Code. Hybrid architectu
 
 ## Quick Start
 
-After installing the plugin, connect it to your Mercado Pago account:
+After installing the plugin, just ask Claude about any Mercado Pago product:
 
-```bash
-# Run from your terminal (not inside Claude Code)
-bash ~/.claude/plugins/cache/mercadopago-claude-marketplace/mp-developer/*/scripts/setup.sh
-```
+> "Integrate Checkout Pro in Node.js for Argentina"
+> "Review my webhook implementation"
+> "How do I handle payment status in Brazil?"
 
-The setup script will:
-1. Ask for your Access Token (hidden input)
-2. Store it in your **OS keychain** (macOS Keychain / Linux secret-tool)
-3. Test the connection
+The agent detects the country and product, activates the right skill, and guides the integration. No setup required.
 
-Then restart Claude Code. The MCP server will read the token from the keychain at startup.
-
-> Your Access Token is never stored in any file. Claude Code cannot read the OS keychain — only the MCP server process accesses it.
-
-Get your Access Token at: https://www.mercadopago.com.ar/developers/panel/app
+**Optional: Connect the MCP server** for enhanced live API data (exact endpoints, up-to-date payloads, code snippets). Run `/mp-connect` or open `/mcp` in Claude Code and authenticate via OAuth.
 
 ## Products Covered
 
@@ -74,7 +66,7 @@ A lightweight router that detects the target country and product, then delegates
 
 | Command | Description |
 |---------|-------------|
-| `/mp-connect` | Connect to your Mercado Pago account — runs the secure token setup |
+| `/mp-connect` | Connect to your Mercado Pago account via OAuth |
 | `/mp-review [scope]` | Review your MP integration. Scopes: `security`, `webhooks`, `checkout`, `qr`, `subscriptions`, `marketplace`, `errors`, `full` |
 | `/mp-setup [lang] [product]` | Scaffold a new integration. Products: `checkout-pro`, `bricks`, `checkout-api`, `orders`, `qr`, `point`, `subscriptions`, `marketplace` |
 
@@ -90,7 +82,7 @@ Blocks writes containing credentials and suggests using environment variables in
 
 ## MCP: Mercado Pago API
 
-Connects Claude Code to the official Mercado Pago MCP server (`mcp.mercadopago.com`), providing live access to payment APIs, documentation, and developer tools. Requires an Access Token — run `/mp-connect` or the setup script to configure.
+Connects Claude Code to the official Mercado Pago MCP server (`mcp.mercadopago.com`) via HTTP transport, providing live access to payment APIs, documentation, and developer tools. Authentication is handled via OAuth — run `/mp-connect` for setup instructions.
 
 ## Configuration
 

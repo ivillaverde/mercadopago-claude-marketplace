@@ -1,5 +1,5 @@
 ---
-description: Connect Claude Code to your Mercado Pago account by configuring the MCP server with your Access Token
+description: Connect Claude Code to your Mercado Pago account via OAuth
 license: Apache-2.0
 copyright: "Copyright (c) 2026 Mercado Pago (MercadoLibre S.R.L.)"
 allowed-tools: [Bash]
@@ -7,73 +7,79 @@ allowed-tools: [Bash]
 
 # /mp-connect
 
-Connect Claude Code to the Mercado Pago API by storing your Access Token securely.
+Connect Claude Code to Mercado Pago MCP Server using OAuth. No Access Token is required — authentication is handled by Mercado Pago via browser redirect.
 
 ## Instructions
 
-The Mercado Pago MCP server requires an Access Token to authenticate API requests. The token is stored in your OS keychain — Claude Code cannot read it directly; only the MCP server process accesses it at startup.
+The Mercado Pago MCP server is registered automatically via the plugin's `.mcp.json` (HTTP transport). The only step is completing the OAuth flow so Claude Code can get a session token.
 
 ### Pre-check: Is MCP already connected?
 
-Before running setup, check if the Mercado Pago MCP server is already connected:
+Before running setup, check if the server is already authenticated:
 
 1. Try `ListMcpResourcesTool` with `server: "mercadopago"`, or check if any `mcp__mercadopago__*` tools are available
-2. If MCP is already connected → inform the user: "The Mercado Pago MCP server is already connected. You're all set! If you want to reconfigure (e.g., change the Access Token), say so and I'll proceed."
-3. Only continue with setup if the user explicitly wants to reconfigure
+2. If connected → inform the user: "The Mercado Pago MCP server is already connected. You're all set! If you want to re-authenticate, say so and I'll guide you."
+3. Only continue with setup if the user explicitly wants to reconnect
 
-### Run the setup script
+### Step 1 — Open the MCP panel
 
-Execute this command to start the interactive setup:
+Ask the user to run `/mcp` in Claude Code. The `mercadopago` server will appear in the list with a **"needs authentication"** link below its name.
 
-```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh
-```
+### Step 2 — Complete OAuth
 
-The script will:
-1. Ask for your Mercado Pago Access Token (input is hidden)
-2. Validate the token format
-3. Store it in your OS keychain (macOS Keychain / Linux secret-tool)
-4. Test the connection to the MCP server
+Ask the user to click the **"needs authentication"** link. This will:
 
-### After setup
+1. Open a browser window redirecting to Mercado Pago
+2. Ask the user to select their **country**
+3. Show the permissions being granted and ask the user to **authorize the connection**
+4. Redirect back to Claude Code automatically
 
-Tell the user to **restart Claude Code** for the MCP server to pick up the new token.
+Claude Code stores the OAuth session token internally — it is never accessible to the model.
 
-### Post-restart verification
+### Step 3 — Verify the connection
 
-After the user restarts Claude Code, verify the MCP connection using MCP tools — NOT REST APIs:
+After the user completes OAuth, verify using MCP tools — NOT REST APIs:
 
 1. Try `ListMcpResourcesTool` with `server: "mercadopago"`, or check if `mcp__mercadopago__*` tools are now available
 2. If tools are available → report: "Mercado Pago MCP server is connected and ready."
-3. If tools are NOT available → report: "The MCP server doesn't appear to be connected yet. Try restarting Claude Code again, or run `/mp-connect` to re-run the setup."
+3. If tools are NOT available → report: "The MCP server doesn't appear to be connected yet. Try running `/mcp` again and clicking the authentication link."
 
-**Do NOT validate by calling REST APIs** (like `curl` to `/v1/payment_methods` or any Mercado Pago endpoint). The goal is to verify the MCP connection, not the API credentials.
+**Do NOT validate by calling REST APIs** (like `curl` to `/v1/payment_methods`). The goal is to verify the MCP connection, not the API credentials.
 
-### Other operations
+### If the browser redirect doesn't open automatically
 
-Check if a token is stored:
+If the user clicks the link but nothing opens, ask them to run this command to register the server manually and retry:
+
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh --status
+claude mcp add --transport http mercadopago https://mcp.mercadopago.com/mcp
 ```
 
-Remove stored token:
+Then run `/mcp` again and click **"needs authentication"**.
+
+### Migrating from v1 (keychain setup)
+
+If you previously configured the plugin using an Access Token stored in the OS keychain, follow these steps to migrate:
+
+**1. Remove the old keychain entry (optional but recommended):**
+
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh --remove
+# macOS
+security delete-generic-password \
+  -a "access_token" \
+  -s "mercadopago-claude-plugin"
+
+# Linux
+secret-tool clear service "mercadopago-claude-plugin" account "access_token"
 ```
 
-### Getting an Access Token
+**2. Complete the OAuth flow** following the steps above (run `/mcp` → click "needs authentication").
 
-Direct the user to: https://www.mercadopago.com.ar/developers/panel/app
+You do not need to edit any config file — the plugin's `.mcp.json` was already updated to use HTTP transport.
 
-Steps:
-1. Log in to the Mercado Pago Developer Dashboard
-2. Select your application (or create one)
-3. Go to "Credentials" in the sidebar
-4. Copy the **Access Token** (starts with `APP_USR-`). For testing, use the credentials of a **test user** created from the Dashboard or via the MCP tool `create_test_user` — test user credentials also use the `APP_USR-` prefix
+---
 
-### Security rules
+### Security notes
 
-- The MCP Access Token MUST only be stored in the OS keychain via `setup.sh` — NEVER in `.env` files
-- NEVER read `.env` files to look for MCP tokens
-- NEVER suggest editing `.env` to configure the MCP connection
-- If the user asks to store the token in `.env`, explain that the OS keychain is more secure and redirect them to run `/mp-connect`
+- The OAuth token is managed entirely by Claude Code — the model cannot read it
+- No Access Token is stored in `.env` files or the OS keychain
+- If the user asks to configure the token manually, explain that OAuth is the supported and more secure method
