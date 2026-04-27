@@ -1,0 +1,28 @@
+.github/CODEOWNERS
+  h_5a4c19a5125527 2,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "75554a0219a8d6135b497511ef9c4dadbf5804a3",
+  "prompts": {
+    "8e078d068033d4ef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7cc33a09-99ec-43ae-ac24-6ffff29a3a69",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 0,
+      "overriden_lines": 2
+    }
+  },
+  "humans": {
+    "h_5a4c19a5125527": {
+      "author": "ivillaverde_meli"
+    }
+  }
+}
