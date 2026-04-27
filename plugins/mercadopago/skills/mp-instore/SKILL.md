@@ -85,7 +85,7 @@ Need in-store payments
 
 ## Gotchas
 
-- QR codes are tied to a specific POS identified by `store_id` + `external_pos_id`. Do not reuse QR codes across POS terminals.
+- QR codes are bound to a specific POS (`store_id` + `external_pos_id`). Never swap QR codes between terminals — a customer scanning POS A's QR will see no amount if the order was created on POS B.
 - QR Static requires the order to be created BEFORE the buyer scans. If the buyer scans first, there is no order to pay.
 - QR Dynamic codes are single-use. Once scanned (or expired), they cannot be reused.
 - QR Hybrid: if the buyer pays with one of the two QR codes, the other is automatically invalidated.
@@ -96,12 +96,12 @@ Need in-store payments
 ## Prerequisites
 
 - Active Mercado Pago account with an application created in Your Integrations to obtain the access token.
-- Store and POS created via API.
-- For Point: a physical device registered in Mercado Pago and associated to a POS.
+- Store and POS created via API (required for both QR and Point products).
+- For Point: a physical terminal registered on the account and associated to a POS.
 
 ## Country Availability
 
-- **QR**: AR, BR, CL, PE, UY
+- **QR**: AR, BR, CL, UY
 - **Point**: AR, BR, MX, CL
 
 **Point devices by country:**
