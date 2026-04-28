@@ -1,5 +1,5 @@
 ---
-description: Connect Claude Code to your Mercado Pago account by configuring the MCP server with your Access Token
+description: Verify or manually trigger Mercado Pago MCP authentication
 license: Apache-2.0
 copyright: "Copyright (c) 2026 Mercado Pago (MercadoLibre S.R.L.)"
 allowed-tools: [Bash]
@@ -7,75 +7,68 @@ allowed-tools: [Bash]
 
 # /mp-connect
 
-Connect Claude Code to the Mercado Pago API by storing your Access Token securely.
+The Mercado Pago MCP server is registered automatically when the plugin loads. Authentication is triggered by Claude Code the first time the MCP is used — no manual setup needed.
 
-## Instructions
+Use this command only if the connection is broken or you want to verify the status.
 
-The Mercado Pago MCP server requires an Access Token to authenticate API requests. The token is stored in your OS keychain — Claude Code cannot read it directly; only the MCP server process accesses it at startup.
+---
 
 > **Note**: Mercado Pago also supports OAuth-based authentication for marketplace flows (where sellers authorize access to their accounts). This command configures the primary Access Token for the MCP server. For OAuth-based marketplace integrations, see the `mp-marketplace` skill.
 
 ### Pre-check: Is MCP already connected?
+## Step 1 — Check status
 
-Before running setup, check if the Mercado Pago MCP server is already connected:
+Try `ListMcpResourcesTool` with server `"plugin:mercadopago:mercadopago"`.
 
-1. Try `ListMcpResourcesTool` with `server: "mercadopago"`, or check if any `mcp__mercadopago__*` tools are available
-2. If MCP is already connected → inform the user: "The Mercado Pago MCP server is already connected. You're all set! If you want to reconfigure (e.g., change the Access Token), say so and I'll proceed."
-3. Only continue with setup if the user explicitly wants to reconfigure
+- Tools returned → tell the user: "✓ Connected and ready." and **stop**.
+- Error or no tools → continue.
 
-### Run the setup script
+---
 
-Execute this command to start the interactive setup:
+## Step 2 — Check why it's not connected
+
+Run:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh
+claude mcp list 2>/dev/null | grep -i mercado || echo "not-found"
 ```
 
-The script will:
-1. Ask for your Mercado Pago Access Token (input is hidden)
-2. Validate the token format
-3. Store it in your OS keychain (macOS Keychain / Linux secret-tool)
-4. Test the connection to the MCP server
+**`plugin:mercadopago:mercadopago` listed with "Needs authentication"** → tell the user:
 
-### After setup
+> Run **`/mcp`** in your terminal. Find **`plugin:mercadopago:mercadopago`** in the **Built-in MCPs** section and press **Enter** on it. A browser will open — select your country and click **Authorize**.
+>
+> Tell me when you're done.
 
-Tell the user to **restart Claude Code** for the MCP server to pick up the new token.
+Wait for confirmation, then go to Step 3.
 
-### Post-restart verification
+**`not-found`** → the plugin is not loaded. Tell the user to run `/reload-plugins` and then `/mp-connect` again.
 
-After the user restarts Claude Code, verify the MCP connection using MCP tools — NOT REST APIs:
+---
 
-1. Try `ListMcpResourcesTool` with `server: "mercadopago"`, or check if `mcp__mercadopago__*` tools are now available
-2. If tools are available → report: "Mercado Pago MCP server is connected and ready."
-3. If tools are NOT available → report: "The MCP server doesn't appear to be connected yet. Try restarting Claude Code again, or run `/mp-connect` to re-run the setup."
+## Step 3 — Verify
 
-**Do NOT validate by calling REST APIs** (like `curl` to `/v1/payment_methods` or any Mercado Pago endpoint). The goal is to verify the MCP connection, not the API credentials.
+Try `ListMcpResourcesTool` with server `"plugin:mercadopago:mercadopago"`.
 
-### Other operations
+- Tools returned → "✓ Connected and ready."
+- Still no tools → "Not connected. Try restarting Claude Code and running `/mp-connect` again."
 
-Check if a token is stored:
+---
+
+## Other IDEs
+
+Add the server manually via your IDE's MCP settings with URL `https://mcp.mercadopago.com/mcp` (HTTP transport), then follow the authentication prompt your IDE shows.
+
+- **Cursor** → `~/.cursor/mcp.json` → `"mercadopago": { "type": "http", "url": "https://mcp.mercadopago.com/mcp" }`
+- **VS Code** → `settings.json` → `"mcp.servers": { "mercadopago": { "type": "http", "url": "https://mcp.mercadopago.com/mcp" } }`
+- **Windsurf** → Settings → MCP Servers → add HTTP server with that URL.
+
+---
+
+## Migrating from v1 (keychain)
+
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh --status
+# macOS
+security delete-generic-password -a "access_token" -s "mercadopago-claude-plugin"
+# Linux
+secret-tool clear service "mercadopago-claude-plugin" account "access_token"
 ```
-
-Remove stored token:
-```bash
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh --remove
-```
-
-### Getting an Access Token
-
-Direct the user to: https://www.mercadopago.com.ar/developers/panel/app
-
-Steps:
-1. Log in to the Mercado Pago Developer Dashboard
-2. Select your application (or create one)
-3. Go to "Credentials" in the sidebar
-4. Copy the **Access Token** (starts with `APP_USR-`). For testing, use the credentials of a **test user** created from the Dashboard or via the MCP tool `create_test_user` — test user credentials also use the `APP_USR-` prefix
-
-### Security rules
-
-- The MCP Access Token MUST only be stored in the OS keychain via `setup.sh` — NEVER in `.env` files
-- NEVER read `.env` files to look for MCP tokens
-- NEVER suggest editing `.env` to configure the MCP connection
-- If the user asks to store the token in `.env`, explain that the OS keychain is more secure and redirect them to run `/mp-connect`
