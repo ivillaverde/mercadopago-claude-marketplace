@@ -1,0 +1,99 @@
+plugins/mercadopago/.claude-plugin/plugin.json
+  5a2236361d74f8a3 3-4
+plugins/mercadopago/commands/mp-connect.md
+  e73d373c5c626964 2,10,12,14,19-21,23-24,26,28,30,33,36,38-40,42,44,46,48,50,52-53,55,57,59,61-63,65,67,69-74
+plugins/mercadopago/skills/mp-review/SKILL.md
+  5a2236361d74f8a3 2-3,5,7,10,13,15,17,19,21,23,25,27,29-32,34,36-37,39,41,43,45-46,48,50-51,53,55,57,59-68,70-74,76-83,85,87-88,90-93,95-96,98-99,101-128,130,132-134
+plugins/mercadopago/commands/mp-integrate.md
+  5a2236361d74f8a3 2-6,9,11,13,15-19,21,23-25,27,29-33
+.claude-plugin/marketplace.json
+  5a2236361d74f8a3 7,14-15
+CLAUDE.md
+  5a2236361d74f8a3 3,5,7-9,11,13-16,30,38,41,64-70,72,74-80,82,84,86-92,94,96,98-99,101,103-116,131,134,138-143,147-149
+docs/components.json
+  5a2236361d74f8a3 2,5-6,27-28,31,37-38,56,58-59,62-63,65,68-71,74-75,78,80-81,84-87,90-91,94,96-97,100-103,106-107,110,112-113,118,120,123-124,129,138,140-141,144-145,149,152,154-155,158-159,163-172
+plugins/mercadopago/.mcp.json
+  e73d373c5c626964 3-4
+plugins/mercadopago/skills/mp-integrate/SKILL.md
+  5a2236361d74f8a3 2-10,13,15,17,21,23,25-28,32,34,36-48,50,52,54-55,57,59,61,63,65-76,80,82-90,92,96,98,100,102-112,114,116,120,122,124-125,127-130,132,134-139,141-144,146-149,151-178,180,182,184,186-190,192-245,249,251-254
+plugins/mercadopago/skills/mp-webhooks/SKILL.md
+  5a2236361d74f8a3 2-3,5,7,10,13,15,17-40,42-53,56-87,90-120,122,124,126,128,131-136,139-144,146,148-151,154-167
+plugins/mercadopago/hooks/hooks.json
+  e73d373c5c626964 4-14
+plugins/mercadopago/README.md
+  e73d373c5c626964 9,11
+  5a2236361d74f8a3 3-5,12-15,17,20-50,53,55-60,66-68,70-77,79,81,85
+plugins/mercadopago/agents/mp-integration-expert.md
+  e73d373c5c626964 75,78,86,88,97,99
+  5a2236361d74f8a3 3,10,15,17,19-24,26,28,30,32-33,35-36,38,40,42,44,46-51,53,55,57,59,61-62,64,66,68,70-74,76-77,79-85,87,89-96,98,100-102
+plugins/mercadopago/hooks/check-version.sh
+  e73d373c5c626964 3-33
+plugins/mercadopago/skills/mp-test-setup/SKILL.md
+  5a2236361d74f8a3 2-3,5,7,10,13,15,17,19,21-25,27,29,31,33,35,37,39-44,46,48,50,52,54,56-59,61-69,71,73,75-76,78-105,107,109-110
+plugins/mercadopago/commands/mp-review.md
+  5a2236361d74f8a3 2-3,6,11,13,15-16,18,20,22-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "69c4bb299d3ba82323425a1705977c69f2fc9e2d",
+  "prompts": {
+    "0c715e6dd37889b9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7100f0bc-a6d5-4d46-bcba-042559147b39",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 71,
+      "total_deletions": 36,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    },
+    "5a2236361d74f8a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "08ac9ae4-5730-4a5f-acfa-a16f66bd8f5e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 1074,
+      "total_deletions": 6619,
+      "accepted_lines": 970,
+      "overriden_lines": 0
+    },
+    "e73d373c5c626964": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f7e56239-9bcd-44f3-bf9f-17e86791d368",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 536,
+      "total_deletions": 526,
+      "accepted_lines": 118,
+      "overriden_lines": 0
+    },
+    "fb17618ded5a13a7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0c813efd-c324-4cfc-9646-02f3fbec2a07",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 36,
+      "total_deletions": 71,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "humans": {
+    "h_5a4c19a5125527": {
+      "author": "ivillaverde_meli"
+    }
+  }
+}
