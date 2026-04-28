@@ -50,25 +50,87 @@ The reliable check: is `mcp__plugin_mercadopago_mercadopago__get_application` ca
 | `brick=` | `payment` / `card-payment` / `wallet` / `status-screen` (only when `product=bricks`) |
 | `qr-mode=` | `static` / `dynamic` / `attended` (only when `product=qr`) |
 
-### Step 1.a — Auto-resolve before asking
+### Step 1.a — Auto-resolve before asking (MANDATORY — exhaust this step first)
 
-For every dimension, attempt these resolution sources **in order** before falling back to a question:
+**You MUST run this step before any `AskUserQuestion` call.** Every dimension that resolves here is removed from the wizard. The developer should only be asked about dimensions that genuinely cannot be inferred. **Skipping the auto-detection and asking the developer anyway is the single most common mistake — do not do it.**
+
+For every dimension, attempt these resolution sources **in order**:
 
 | Dimension | 1st: MCP | 2nd: repo signals | 3rd: ask |
 |-----------|----------|-------------------|----------|
-| `country` | `get_application` → `site_id` | `currency_id`, `site_id` literals, `mercadopago.com.<tld>` URLs, locale strings | `AskUserQuestion` |
-| `sdk` | — | `package.json` → `node` · `requirements.txt` / `pyproject.toml` → `python` · `pom.xml` / `build.gradle` → `java` · `composer.json` → `php` · `Gemfile` → `ruby` · `*.csproj` / `Program.cs` → `dotnet` · `go.mod` → `go` (multiple manifests → ask) | `AskUserQuestion` |
-| `client` | — | `package.json` deps: `react` → `react` · `next` → `react` · `react-native` → `react-native` · `expo` → `react-native` · iOS Xcode project → `ios` · `build.gradle` Android → `android` · `pubspec.yaml` → `flutter` (none → ask, only if product has a client component) | `AskUserQuestion` |
-| `lang` | `get_application` may carry locale | derive from country (BR→pt, others→es) | `AskUserQuestion` (only if developer chose a non-default) |
-| `mode` | — | `Grep` for `/v1/orders` / `order.create` → `orders`; `/v1/payments` / `/v1/checkout/preferences` / `payment.create` / `preference.create` → `legacy` | `AskUserQuestion` (only when the product matrix lists more than one) |
+| `country` | `get_application` → `site_id` (this almost always succeeds — it's the authoritative source) | `currency_id`, `site_id` literals, `mercadopago.com.<tld>` URLs, locale strings | `AskUserQuestion` (last resort only) |
+| `sdk` | — | **MUST run `Glob` for**: `package.json`, `pyproject.toml`, `requirements.txt`, `pom.xml`, `build.gradle`, `build.gradle.kts`, `composer.json`, `Gemfile`, `*.csproj`, `Program.cs`, `go.mod`. Mapping: `package.json` → `node`, `pyproject.toml`/`requirements.txt` → `python`, `pom.xml`/`build.gradle*` → `java`, `composer.json` → `php`, `Gemfile` → `ruby`, `*.csproj`/`Program.cs` → `dotnet`, `go.mod` → `go`. **Single manifest match → resolved, do NOT ask.** Multiple manifests (real polyglot monorepo) → ask. No manifest at all → ask. | `AskUserQuestion` |
+| `client` | — | **MUST inspect** `package.json` deps and project files: `react`/`next` → `react`, `react-native`/`expo` → `react-native`, iOS Xcode project (`*.xcodeproj`) → `ios`, Android `build.gradle` with `com.android.application` → `android`, `pubspec.yaml` → `flutter`. Single match → resolved, do NOT ask. Otherwise → ask, but only if the product has a client component. | `AskUserQuestion` |
+| `lang` | `get_application` may carry locale | derive from country (BR→pt, others→es) | almost never asked — defaulted from country |
+| `mode` | — | `Grep` for `/v1/orders` / `order.create` → `orders`; `/v1/payments` / `payment.create` → `payments`; `/v1/checkout/preferences` / `preference.create` → `preferences`. Single hit → resolved. Plus the Product Matrix may pin mode to a single allowed value (e.g. `checkout-pro` → always `preferences`); when pinned, **do NOT ask**. | `AskUserQuestion` (only when matrix allows >1 AND grep didn't disambiguate) |
+
+**Concrete order of operations for the wizard:**
+
+1. Run `get_application` (already done in Step 0). Extract `site_id`. **Country resolved.** Skip the country question.
+2. Run `Glob` over the manifest patterns above. If a single SDK matches, **SDK resolved**. Skip the SDK question.
+3. If the product needs a client (e.g. `bricks`, `checkout-api`), run `Glob`/`Grep` on the manifest deps. If a single client matches, **client resolved**. Skip the client question.
+4. Default `lang` from country. Skip the lang question.
+5. Now — and only now — call `AskUserQuestion` for whatever is still missing, one tool call at a time, in the order defined in Step 1.b.
+
+If the agent already passed flags (`country=`, `sdk=`, `mode=`, etc.), treat those as resolved too.
 
 Anything still unresolved after 1.a goes into the wizard in 1.b.
 
-### Step 1.b — Ask one question at a time (NEVER as a single text block)
+### Step 1.b — Ask one question at a time, with the AskUserQuestion picker
 
-The wizard MUST use `AskUserQuestion` for every unresolved dimension, **one call per dimension**, waiting for the answer before issuing the next call. Do **not** print a numbered list of pending questions in chat and ask the developer to answer them all at once — that pattern is what the v3 wizard did wrong, and it makes skipping/correcting answers impossible.
+This is the most-violated rule of the wizard. Read it twice.
 
-For dimensions with more than 4 valid options (e.g. `product` has 10), use the natural overflow of `AskUserQuestion` — show 4 most-likely options + "Other" (which lets the developer type freely). Never split a single dimension into "category then sub-category" — that's a different decision.
+**HARD RULES — no exceptions:**
+
+1. **Never** write a numbered list of pending questions in chat (`1. Country …  2. Product …  3. SDK …`). That is the v3 anti-pattern.
+2. **Never** list options as plain text bullets (`- checkout-pro — Redirect-based …`). The developer cannot click on plain text.
+3. **Always** use the `AskUserQuestion` tool, **one tool call per dimension**, waiting for the answer before issuing the next call. The developer sees an interactive picker and arrows-to-select.
+4. The chat output before the first `AskUserQuestion` call MUST be ≤3 short lines — a one-line confirmation of the auto-resolved values (one line per dimension already resolved). No prose, no menu, no preamble.
+5. After each answer comes back, output ≤1 short confirmation line, then immediately make the next `AskUserQuestion` call for the next unresolved dimension. Do **not** summarise progress between questions.
+
+**Order of `AskUserQuestion` calls** — only for dimensions still unresolved after Step 1.a. Skip any dimension that is already known. Do NOT ask about dimensions the Product Matrix marks `n/a` for the chosen product.
+
+| Order | Dimension | Header | Options to show |
+|-------|-----------|--------|-----------------|
+| 1 | `product` | "Product" | The 4 most likely products as buttons + "Other" auto-fallback. Pick the 4 from this priority: `checkout-pro`, `bricks`, `checkout-api`, `subscriptions` (most common). The remaining ones (`qr`, `point`, `marketplace`, `wallet-connect`, `money-out`, `smartapps`) are reachable via "Other". |
+| 2 | `mode` | "Mode" | Only when the matrix lists more than one allowed value. For `checkout-api`: `orders` / `payments`. For `qr` / `point` / `marketplace`: `orders` / `legacy`. Skip entirely otherwise. |
+| 3 | `sdk` | "Stack" | `node` / `python` / `java` / "Other" (php, ruby, dotnet, go, none-for-raw-REST reachable via Other). |
+| 4 | `client` | "Client" | Only if the product has a client component AND repo signals were ambiguous. Show the 3 most likely + Other. |
+| 5 | `brick` | "Brick" | Only when `product=bricks`. Options: `payment` / `card-payment` / `wallet` / `status-screen`. |
+| 6 | `qr-mode` | "QR mode" | Only when `product=qr`. Options: `static` / `dynamic` / `attended`. |
+| 7 | `recurrent` | "Recurrent" | Only when the matrix marks it `yes` for the chosen product. Options: `yes` / `no`. |
+| 8 | `3ds` | "3DS" | Only when the matrix marks it `yes`. Options: `yes` / `no`. |
+| 9 | `marketplace` | "Splits" | Only when the matrix marks it `optional`. Options: `yes` / `no`. |
+
+**`country` is never in this list** — it is always resolved by `get_application` (Step 1.a). If reaching this step without a country, something went wrong upstream; ask via `AskUserQuestion` as `header="Country"` with the 4 most-common (AR, BR, MX, CO) + "Other" — but in practice this should not happen because OAuth gave us the answer.
+
+### Step 1.b.i — What the chat looks like (concrete example)
+
+Wrong (v3 anti-pattern, exactly what the screenshot showed):
+
+```
+Now I need a few details to scaffold the right integration:
+
+1. Country — Which site/country are you integrating for?
+- MCO — Colombia
+- MLA — Argentina
+…
+
+2. Product — Which Mercado Pago product…
+…
+
+3. SDK / Language — What stack are you using?
+…
+```
+
+Right:
+
+```
+✓ Country: Colombia (MCO) — from get_application
+✓ SDK: node — from package.json
+```
+
+→ then immediately the `AskUserQuestion` call for `product`. The developer picks. Then ≤1 line confirmation. Then the next `AskUserQuestion`. And so on.
 
 ### Step 1.c — Persist progress in a scratch file
 
