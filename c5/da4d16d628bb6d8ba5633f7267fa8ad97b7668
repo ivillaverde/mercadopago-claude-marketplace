@@ -1,0 +1,25 @@
+docs/components.json
+  5a2236361d74f8a3 2
+plugins/mercadopago/skills/mp-integrate/SKILL.md
+  5a2236361d74f8a3 53,55-57,61-75,79-107,109-131,133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "c5da4d16d628bb6d8ba5633f7267fa8ad97b7668",
+  "prompts": {
+    "5a2236361d74f8a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "08ac9ae4-5730-4a5f-acfa-a16f66bd8f5e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 79,
+      "total_deletions": 17,
+      "accepted_lines": 75,
+      "overriden_lines": 0
+    }
+  }
+}
