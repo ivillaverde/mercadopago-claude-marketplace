@@ -1,0 +1,37 @@
+plugins/mercadopago/commands/mp-integrate.md
+  5a2236361d74f8a3 23
+plugins/mercadopago/skills/mp-integrate/SKILL.md
+  5a2236361d74f8a3 25,31,59-65,69-75,83-95,99-103,119,143-144,157
+plugins/mercadopago/commands/mp-connect.md
+  5a2236361d74f8a3 23,52
+plugins/mercadopago/agents/mp-integration-expert.md
+  5a2236361d74f8a3 36,45-46,52,58,60,62-64,73,84,86,88,90
+plugins/mercadopago/skills/mp-test-setup/SKILL.md
+  5a2236361d74f8a3 33,41,43-46
+docs/components.json
+  5a2236361d74f8a3 2
+plugins/mercadopago/skills/mp-webhooks/SKILL.md
+  5a2236361d74f8a3 23
+plugins/mercadopago/README.md
+  5a2236361d74f8a3 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "785c60b0bc78ed4da919765ee09b8c5cf3c59df5",
+  "prompts": {
+    "5a2236361d74f8a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "08ac9ae4-5730-4a5f-acfa-a16f66bd8f5e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "ivillaverde_meli",
+      "messages": [],
+      "total_additions": 65,
+      "total_deletions": 47,
+      "accepted_lines": 64,
+      "overriden_lines": 0
+    }
+  }
+}
