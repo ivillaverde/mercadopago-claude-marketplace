@@ -125,8 +125,10 @@ for f in plugins/mercadopago/skills/*/SKILL.md; do head -1 "$f"; done
 
 ## pre-commit
 
-This repo has no `.pre-commit-config.yaml`. When committing, use:
+This repo uses a git hook in `.githooks/pre-commit` to run `claude plugins validate .` and then validate each first-level plugin directory under `plugins/*/` before each commit.
+
+Mandatory setup:
 
 ```bash
-PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "message"
+bash scripts/install-git-hooks.sh
 ```

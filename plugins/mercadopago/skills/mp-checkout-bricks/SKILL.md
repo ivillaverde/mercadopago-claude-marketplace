@@ -1,6 +1,6 @@
 ---
 name: mp-checkout-bricks
-description: Checkout Bricks integration for Mercado Pago. Single skill with internal modules for Payment Brick, Card Payment Brick, Wallet Brick, and Status Screen Brick. Use when: Bricks, Payment Brick, Card Payment Brick, Wallet Brick, Status Screen Brick, embedded payment form, formulário de pagamento embutido, componente de pago.
+description: 'Checkout Bricks integration for Mercado Pago. Single skill with internal modules for Payment Brick, Card Payment Brick, Wallet Brick, and Status Screen Brick. Use when: Bricks, Payment Brick, Card Payment Brick, Wallet Brick, Status Screen Brick, embedded payment form, formulário de pagamento embutido, componente de pago.'
 license: Apache-2.0
 metadata:
   version: "1.0.0"
