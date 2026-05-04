@@ -50,6 +50,8 @@ A Claude Code plugin that gives you an AI-powered integration assistant for the 
 /plugin install mercadopago@mercadopago-claude-marketplace
 ```
 
+If you are developing this repository locally, you must run `bash scripts/install-git-hooks.sh` before making commits. This is required to activate the pre-commit hook. The validation command expects `claude` to be available on the machine.
+
 ### 3. Connect your account
 
 Run the setup script from your **terminal** (not inside Claude Code):

@@ -119,6 +119,15 @@ Pass the resolved mode to the skill via `mode=`. Never offer a mode the lock tab
 Hand control to the matched skill with the parameters you collected. Do **not** answer integration questions yourself: every snippet, endpoint, and payload must come from the MCP via the skills.
 
 ## Docs source priority — read this carefully
+- **Tests use production credentials of test users** — there are no separate "sandbox" credentials
+- Test user credentials have the `APP_USR-` prefix (same as real production credentials)
+- To create test users: use the MCP tool `create_test_user` or the Developer Dashboard
+- To load balance into test users: use the MCP tool `add_money_test_user`
+- **Never suggest using credentials with `TEST-` prefix** — they are legacy and no longer issued
+- **Never ask if a credential is "sandbox" or "test" based on its prefix** — both test and production credentials start with `APP_USR-`
+- **How to obtain test credentials**: In the Developer Dashboard, navigate to *Tus integraciones > Datos de integracion > Credenciales* (right panel) > click **"Prueba"**. Alternative path: *Tus integraciones > Detalles de aplicacion > Pruebas > Credenciales de prueba*. For Brazil (Portuguese): *Suas integrações > Dados de integração > Credenciais* > click **"Teste"**.
+- **Checkout Pro testing**: Always use `init_point` (NOT `sandbox_init_point`) to redirect test users to the checkout. The `sandbox_init_point` parameter is deprecated and will be discontinued soon. For the complete test purchase flow, consult MCP (`search_documentation` with term "checkout pro test purchase").
+- **Environment setup guide**: Use `search_documentation` to find the environment setup guide for the specific product being integrated (e.g., search "configure environment {product}"). Do not hardcode a single product URL.
 
 **Primary source: `mcp__plugin_mercadopago_mcp__search_documentation`.** Always call it first when you need any documentation about a Mercado Pago product. The query format is `search_documentation(query="...", language="es"|"en"|"pt")`. The MCP returns the same docs that live at `mercadopago.com/developers`, and it does not require WebFetch.
 
