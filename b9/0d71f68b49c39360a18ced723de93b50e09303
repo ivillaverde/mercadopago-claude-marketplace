@@ -1,0 +1,14 @@
+plugins/mercadopago/agents/mp-integration-expert.md
+  h_5a4c19a5125527 122-130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "b90d71f68b49c39360a18ced723de93b50e09303",
+  "prompts": {},
+  "humans": {
+    "h_5a4c19a5125527": {
+      "author": "ivillaverde_meli"
+    }
+  }
+}
